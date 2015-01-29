@@ -1,0 +1,54 @@
+html, body {
+	margin: 0;
+	padding: 0;
+	background: #000;
+	font-family: 'Consolas';
+	color: #999;
+	font-size: .9em;
+}
+
+#status {
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+	background: #292929;
+	padding: 5px;
+}
+
+#status > div {
+	display: inline-block;
+}
+
+#clock-value, #cwa-value, #location-value {
+	color: #D3D3D3;
+}
+
+.clock-ends, .cwa-ends, .location-ends {
+	color: #009999;
+}
+
+#iem ol {
+	list-style: none;
+	margin: 0;
+	position: absolute;
+	bottom: 25px;
+	padding: 5px;
+}
+
+#iem a {
+	color: #039B99;
+}
+
+#iem li > div {
+	line-height: 19px;
+}
+
+#iem .message {
+	cursor: pointer;
+	text-indent: -5em;
+  	padding-left: 5em;
+}
+
+#iem .ts-ends {
+	color: #292929;
+}

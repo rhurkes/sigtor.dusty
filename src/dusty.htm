@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link type="text/css" rel="stylesheet" href="dusty.css" />
+	<script src="js/jquery-2.1.1.min.js"></script>
+	<script src="js/moment.min.js"></script>
+	<script src="js/numeral.min.js"></script>
+	<script src="js/keyboard.min.js"></script>
+	<script src="js/react.min.js"></script>
+	<script src="js/utility.js"></script>
+	<script src="data/cwa.json"></script>
+	<script src="js/dusty.core.js"></script>
+	<script src="js/dusty.config.js"></script>
+</head>
+<body>
+	<div id="home" class="view"></div>
+	<div id="status" class="view">
+		<div id="clock">
+			<span class="clock-ends">[</span><span id="clock-value"></span><span class="clock-ends">]</span>
+		</div>
+		<div id="network"></div>
+		<div id="gps"></div>
+		<div id="location">
+			<span class="location-ends">[</span>loc: <span id="location-value"></span><span class="location-ends">]</span>
+		</div>
+		<div id="cwa">
+			<span class="cwa-ends">[</span>cwa: <span id="cwa-value"></span><span class="cwa-ends">]</span>
+		</div>
+		<div id="alerts"></div>
+	</div>
+</body>

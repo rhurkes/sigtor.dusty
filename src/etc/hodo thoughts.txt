@@ -1,0 +1,15 @@
+http://www.spc.noaa.gov/publications/edwards/motion.pdf
+Bunkers is best, 15R85 is second best, mean-wind middle, and 30R75 is garbage.
+
+The 30R75
+algorithm was, by far, the poorest predictor of
+storm speeds across the entire supercell
+database. Notably, 30R75 was too slow for
+nearly 75% of tornadic storms, and its even
+poorer performance for nontornadic storms
+placed its inner quartiles below zero for ths
+supercell data set as a whole. 
+
+http://journals.ametsoc.org/doi/pdf/10.1175/WAF889.1
+Suggests improving Bunkers by using 0-8km wind layer instead of 0-6km
+HP supercells and bow echoes have large forecast errors
