@@ -2,6 +2,7 @@ dusty.module = dusty.module || {};
 dusty.module.iem = (function() {
 	var lastSeqNum = 0;
 	var refreshDelay = 30000;
+	var oldMinutes = 15;
 
 	var _init = function() {
 		dusty.core.modules.push('IEM');
@@ -38,9 +39,17 @@ dusty.module.iem = (function() {
 		fetchIemData: function() {
 			var self = this;
 			var url = 'http://weather.im/iembot-json/room/botstalk?seqnum=' + lastSeqNum + '&callback=?';
-			console.log('fetch');
+			var requestId = dusty.core.netrequests.length;
+			dusty.core.netrequests.push({ ts: new Date().getTime(), status: 0 });
 			$.getJSON(url, null, function(data) {
 				self.handleIemData(data);
+			})
+			.done(function() {
+				dusty.core.netrequests[requestId].status = ((new Date().getTime() - dusty.core.netrequests[requestId].ts) < 5000)
+					? 1 : .6;
+			})
+			.fail(function() {
+				dusty.core.netrequests[requestId].status = 0;
 			});
 		},
 		render: function() {
@@ -49,9 +58,12 @@ dusty.module.iem = (function() {
 			var messages = null;
 			if (this.state.messages) {
 				messages = this.state.messages.map(function(m) {
-					return (
-						<IemMessage message={_formatMessage(m)} />
-					);
+					var fm = _formatMessage(m);
+					if (fm) {
+						return (
+							<IemMessage message={fm} />
+						);
+					}
 				});
 			}
 
@@ -74,12 +86,12 @@ dusty.module.iem = (function() {
 			if (this.props.message.local) {
 				className += ' local';
 			}
-
-			return (this.props.message)
-				? (<li className={className}>
-						<div className="message" dangerouslySetInnerHTML={{__html: this.props.message.text}} onClick={this.handleClick}></div>
-					</li>)
-				: null;
+			if (this.props.message.old) {
+				className += ' old';
+			}
+			return (<li className={className}>
+					<div className="message" dangerouslySetInnerHTML={{__html: this.props.message.text}} onClick={this.handleClick}></div>
+				</li>);
 		}
 	});
 
@@ -135,6 +147,7 @@ dusty.module.iem = (function() {
 		var fm = {
 			code: code,
 			time: m.ts,
+			old: moment.utc(moment()).subtract(oldMinutes, "minute").format('X') > moment(m.ts + 'Z').format('X'),
 			text: tsHtml + $(m.message).text(),
 			url: $(m.message).find('a').attr('href'),
 			local: (dusty.core.cwa && $(m.message).text().slice(0, 3) === dusty.core.cwa)

@@ -23,7 +23,19 @@ html, body {
 	color: #D3D3D3;
 }
 
-.clock-ends, .cwa-ends, .location-ends {
+#net .ok {
+	color: #33FF00;
+}
+#net .poor {
+	color: #FFFF33;
+}
+#net .bad {
+	background: #CC0000;
+	color: #FFF;
+	text-transform: uppercase;
+}
+
+.clock-ends, .cwa-ends, .location-ends, .net-ends {
 	color: #009999;
 }
 
@@ -33,6 +45,14 @@ html, body {
 	position: absolute;
 	bottom: 25px;
 	padding: 5px;
+}
+
+#iem li.local {
+	color: #FFF;
+}
+
+#iem li.old {
+	opacity: .7;
 }
 
 #iem a {
