@@ -3,15 +3,17 @@ dusty.module.iem = (function() {
 	var lastSeqNum = 0;
 	var refreshDelay = 30000;
 	var oldMinutes = 15;
+	var messageMax = 100;
+	var _name = 'iem';
 
 	var _init = function() {
-		dusty.core.modules.push('IEM');
-		console.log('Loaded module: dusty.module.iem');
+		dusty.modules.push(_name);
+		console.log('Loaded module: dusty.module.' + _name);
 		var div = document.createElement('div');
-		div.id = 'iem';
-		div.className = 'light';
+		div.id = _name;
+		div.className = 'module';
 		document.body.appendChild(div);
-		React.render(<Iem />, document.getElementById('iem'));
+		React.render(<Iem />, document.getElementById(_name));
 	};
 
 	var Iem = React.createClass({
@@ -19,53 +21,54 @@ dusty.module.iem = (function() {
 			var self = this;
 			self.fetchIemData();
 			var iemTimer = setInterval(function() {
-				console.log('refresh iem data');
 				self.fetchIemData();
 			}, refreshDelay);
 			return { messages: [] };
 		},
 		handleIemData: function(data) {
-			console.log('handle');
-			console.log(data);
 			if (data.messages && data.messages.length) {
 				tmpLastSeqNum = data.messages[data.messages.length - 1].seqnum;
 				if (!isNaN(tmpLastSeqNum)) {
 					lastSeqNum = tmpLastSeqNum;
 				}
 			}
-			this.state.messages = this.state.messages.concat(data.messages);
+
+			var messages = [];
+			for (var i = 0; i < data.messages.length; i++) {
+				var fm = _formatMessage(data.messages[i]);
+				if (fm) {
+					messages.push(fm);
+				}
+			}
+
+			this.state.messages = this.state.messages.concat(messages);
+			if (this.state.messages.length > messageMax) {
+				this.state.messages = this.state.messages.slice(this.state.messages.length - messageMax);
+			}
 			this.setState(this.state);
 		},
 		fetchIemData: function() {
 			var self = this;
 			var url = 'http://weather.im/iembot-json/room/botstalk?seqnum=' + lastSeqNum + '&callback=?';
-			var requestId = dusty.core.netrequests.length;
-			dusty.core.netrequests.push({ ts: new Date().getTime(), status: 0 });
+			var requestId = dusty.netrequests.length;
+			dusty.netrequests.push({ ts: new Date().getTime(), status: 0 });
 			$.getJSON(url, null, function(data) {
 				self.handleIemData(data);
 			})
 			.done(function() {
-				dusty.core.netrequests[requestId].status = ((new Date().getTime() - dusty.core.netrequests[requestId].ts) < 5000)
+				dusty.netrequests[requestId].status = ((new Date().getTime() - dusty.netrequests[requestId].ts) < 5000)
 					? 1 : .6;
 			})
 			.fail(function() {
-				dusty.core.netrequests[requestId].status = 0;
+				dusty.netrequests[requestId].status = 0;
 			});
 		},
 		render: function() {
-			console.log('render');
-			var self = this;
-			var messages = null;
-			if (this.state.messages) {
-				messages = this.state.messages.map(function(m) {
-					var fm = _formatMessage(m);
-					if (fm) {
-						return (
-							<IemMessage message={fm} />
-						);
-					}
-				});
-			}
+			var messages = this.state.messages.map(function(m) {
+				return (
+					<IemMessage message={m} />
+				);
+			});
 
 			return (
 				<div>
@@ -118,11 +121,11 @@ dusty.module.iem = (function() {
 		var product = m.product_id.split('-');
 		if (product[3] !== null && product[3].length >= 3) { code = product[3].substring(0, 3); }
 		if (product[1] === 'KWNS') { code += '|SPC'; }
-		//if (_isFilteredType(code)) { return; }
+		if (_isFilteredType(code)) { return; }
 		//if (_isFilteredLsr(m.message)) { return; }
-		//if ((code == 'AFD' || code == 'NOW' || code == 'LSR') && !_isAllowedWfo(product[1])) { return; }
-		//if ((code == 'WCN' || code == 'SVS') && (m.message.indexOf('cancels') > -1 || m.message.indexOf('continues'))) { return; }
-		// Speaker Queue stuff testing
+		if ((code == 'AFD' || code == 'NOW' || code == 'LSR') && !_isAllowedWfo(product[1])) { return; }
+		if ((code == 'WCN' || code == 'SVS') && (m.message.indexOf('cancels') > -1 || m.message.indexOf('continues'))) { return; }
+
 		// Parse abbreviations
 		if (code == 'LSR') {
 			var parsedText = product[1] + $('<div/>').html(m.message).find('a').text();
@@ -133,11 +136,11 @@ dusty.module.iem = (function() {
 			parsedText = parsedText.replaceAll('GST', 'gust');
 			parsedText = parsedText.replaceAll('MPH', 'miles per hour');
 			parsedText = parsedText.replaceAll('KY', 'Kentucky');
-			//speakerQueue.push( { 'text': 'There is a new local storm report. ' + parsedText, 'alert': false });
+			dusty.speakerQueue.push( { 'text': 'local storm report. ' + parsedText, 'alert': false });
 		}
 
 		if (code == 'TOR') {
-			//speakerQueue.push( { 'text': 'The national weather service has issued a tornado warning. ' + parsedText, 'alert': true });
+			dusty.speakerQueue.push( { 'text': 'The national weather service has issued a tornado warning. ' + parsedText, 'alert': true });
 		}
 
 		var tsHtml =
@@ -150,7 +153,7 @@ dusty.module.iem = (function() {
 			old: moment.utc(moment()).subtract(oldMinutes, "minute").format('X') > moment(m.ts + 'Z').format('X'),
 			text: tsHtml + $(m.message).text(),
 			url: $(m.message).find('a').attr('href'),
-			local: (dusty.core.cwa && $(m.message).text().slice(0, 3) === dusty.core.cwa)
+			local: (dusty.cwa && $(m.message).text().slice(0, 3) === dusty.cwa)
 		}
 
 		return fm;
@@ -164,7 +167,7 @@ dusty.module.iem = (function() {
 			_init();
 		},
 		dispose: function() {
-			var index = dusty.modules.indexOf('IEM');
+			var index = dusty.modules.indexOf(_name);
 			if (index > -1) {
 				dusty.modules.splice(index, 1);
 			}

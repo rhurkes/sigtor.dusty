@@ -13,13 +13,18 @@ html, body {
 	width: 100%;
 	background: #292929;
 	padding: 5px;
+	z-index: 100;
 }
 
 #status > div {
 	display: inline-block;
 }
 
-#clock-value, #cwa-value, #location-value {
+.module {
+	display: none;
+}
+
+#clock-value, #cwa-value, #location-value, #mod-value, #new-value {
 	color: #D3D3D3;
 }
 
@@ -35,7 +40,7 @@ html, body {
 	text-transform: uppercase;
 }
 
-.clock-ends, .cwa-ends, .location-ends, .net-ends {
+.clock-ends, .cwa-ends, .location-ends, .net-ends, .mod-ends, .new-ends {
 	color: #009999;
 }
 
@@ -71,4 +76,34 @@ html, body {
 
 #iem .ts-ends {
 	color: #292929;
+}
+
+/* TODO standardize colors */
+#iem li.TOR {
+	background: red;
+	color: #FFF;
+}
+
+#iem li.SPC {
+	color: #FFF;
+}
+
+/* CoD Visible Satellite CSS */
+#codsat canvas {
+	display: none;
+}
+
+/* SPC Mesoanalysis */
+#spcmeso-box {
+	background: #FFF;
+	width: 1000px;
+	height: 750px;
+}
+
+#spcmeso-box > img {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 1000px;
+	height: 750px;
 }

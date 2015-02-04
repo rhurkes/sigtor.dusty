@@ -8,12 +8,14 @@
 	<script src="js/keyboard.min.js"></script>
 	<script src="js/react.min.js"></script>
 	<script src="js/utility.js"></script>
-	<script src="js/offline.min.js"></script>
+	<script src="js/speakGenerator.js"></script>
+	<script src="js/speakclient.min.js"></script>
 	<script src="data/cwa.json"></script>
-	<script src="js/dusty.core.js"></script>
+	<script src="js/dusty.js"></script>
 	<script src="js/dusty.config.js"></script>
 </head>
 <body>
+	<div id="audio"></div>
 	<div id="home" class="view"></div>
 	<div id="status" class="view">
 		<div id="clock">
@@ -29,6 +31,11 @@
 		<div id="cwa">
 			<span class="cwa-ends">[</span>cwa: <span id="cwa-value"></span><span class="cwa-ends">]</span>
 		</div>
-		<div id="alerts"></div>
+		<div id="mod">
+			<span class="mod-ends">[</span>mod: <span id="mod-value"></span><span class="mod-ends">]</span>
+		</div>
+		<div id="new">
+			<span class="new-ends">[</span>new: <span id="new-value"></span><span class="new-ends">]</span>
+		</div>
 	</div>
 </body>
