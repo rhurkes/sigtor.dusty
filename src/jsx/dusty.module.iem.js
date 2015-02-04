@@ -3,8 +3,52 @@ dusty.module.iem = (function() {
 	var lastSeqNum = 0;
 	var refreshDelay = 30000;
 	var oldMinutes = 15;
-	var messageMax = 100;
+	var rawMax = 1000;
+	var filteredMax = 100;
 	var _name = 'iem';
+	var RawStore = document.createElement('store');
+	RawStore.messages = [];
+	var filterStore = function() {
+	    RawStore.dispatchEvent(new CustomEvent('filter'));
+	}
+
+	var _config = {
+		url: 'http://weather.im/iembot-json/room/botstalk?seqnum={{lastSeqNum}}&callback=?',
+		productBlacklist: ['WSW','MWW','PNS','NPW','FLS','CFW','SMW','MWS',
+			'FFA','ADM','FLW','RFD','RFW','SPE']
+	}
+
+	var _optionsCallback = function(data) {
+		switch (data.type) {
+			case 'blacklist':
+				if (_config.productBlacklist.indexOf(data.code) === -1) {
+					_config.productBlacklist.push(data.code);
+					filterStore();
+				}
+				break;
+		}
+	};
+
+	var _displayOptions = function() {
+		if (dusty.menu.style.display && dusty.menu.style.display !== 'none') {
+			umenu(dusty.menu);
+		}
+		else {
+			umenu(dusty.menu, _optionsMenu, _optionsCallback);
+		}
+	};
+
+	var _optionsMenu = 
+		{
+			'menu': [
+				{
+					id: 'Product Blacklist', children: [
+						{ id: 'RER', info: { 'type': 'blacklist', 'code': 'RER' } },
+						{ id: 'HWO', info: { 'type': 'blacklist', 'code': 'HWO' } }
+					]
+				}
+			]
+		};
 
 	var _init = function() {
 		dusty.modules.push(_name);
@@ -25,6 +69,21 @@ dusty.module.iem = (function() {
 			}, refreshDelay);
 			return { messages: [] };
 		},
+		componentWillMount: function() { RawStore.addEventListener('filter', this.filterStore.bind(this)); },
+    	componentWillUnmount: function() { RawStore.removeEventListener('filter', this.filterStore.bind(this)); },
+		filterStore: function() {
+			for (var i = 0; i < RawStore.messages.length; i++) {
+				var fm = _formatMessage(RawStore.messages[i]);
+				if (fm) {
+					this.state.messages.push(fm);
+				}
+			}
+
+			if (this.state.messages.length > filteredMax) {
+				this.state.messages = this.state.messages.slice(this.state.messages.length - filteredMax);
+			}
+			this.setState(this.state);
+		},
 		handleIemData: function(data) {
 			if (data.messages && data.messages.length) {
 				tmpLastSeqNum = data.messages[data.messages.length - 1].seqnum;
@@ -33,23 +92,16 @@ dusty.module.iem = (function() {
 				}
 			}
 
-			var messages = [];
-			for (var i = 0; i < data.messages.length; i++) {
-				var fm = _formatMessage(data.messages[i]);
-				if (fm) {
-					messages.push(fm);
-				}
+			RawStore.messages = RawStore.messages.concat(data.messages);
+			if (RawStore.messages.length > rawMax) {
+				RawStore.messages = RawStore.messages.slice(RawStore.messages.length - rawMax);
 			}
 
-			this.state.messages = this.state.messages.concat(messages);
-			if (this.state.messages.length > messageMax) {
-				this.state.messages = this.state.messages.slice(this.state.messages.length - messageMax);
-			}
-			this.setState(this.state);
+			this.filterStore();
 		},
 		fetchIemData: function() {
 			var self = this;
-			var url = 'http://weather.im/iembot-json/room/botstalk?seqnum=' + lastSeqNum + '&callback=?';
+			var url = _config.url.replace('{{lastSeqNum}}', lastSeqNum);
 			var requestId = dusty.netrequests.length;
 			dusty.netrequests.push({ ts: new Date().getTime(), status: 0 });
 			$.getJSON(url, null, function(data) {
@@ -92,16 +144,13 @@ dusty.module.iem = (function() {
 			if (this.props.message.old) {
 				className += ' old';
 			}
-			return (<li className={className}>
+			return (
+				<li className={className}>
 					<div className="message" dangerouslySetInnerHTML={{__html: this.props.message.text}} onClick={this.handleClick}></div>
-				</li>);
+				</li>
+			);
 		}
 	});
-
-	var _isFilteredType = function(code) {
-		return (code == 'RER' || code == 'WSW' || code == 'MWW' || code == 'PNS' || code == 'HWO' || code == 'NPW' || code == 'FLS' || code == 'CFW' || code == 'SMW' || code == 'MWS' || code == 'FFA'
-		|| code == 'ADM' || code == 'FLW' || code == 'RFD' || code == 'RFW' || code == 'SPE');
-	};
 
 	var _isFilteredLsr = function(msg) {
 		return (msg.indexOf('reports TSTM WND') > -1 || msg.indexOf('reports HEAVY RAIN') > -1 || msg.indexOf('reports SLEET') > -1 || msg.indexOf('reports MARINE') > -1);
@@ -114,18 +163,7 @@ dusty.module.iem = (function() {
 			|| wfo == 'OUN' || wfo == 'TSA' || wfo == 'AMA' || wfo == 'FWD' || wfo == 'LUB' || wfo == 'MAF');
 	};
 
-	var _formatMessage = function(m) {
-		if (m == null || m.product_id == null || !m.product_id.length) { return; }
-
-		var code = '';
-		var product = m.product_id.split('-');
-		if (product[3] !== null && product[3].length >= 3) { code = product[3].substring(0, 3); }
-		if (product[1] === 'KWNS') { code += '|SPC'; }
-		if (_isFilteredType(code)) { return; }
-		//if (_isFilteredLsr(m.message)) { return; }
-		if ((code == 'AFD' || code == 'NOW' || code == 'LSR') && !_isAllowedWfo(product[1])) { return; }
-		if ((code == 'WCN' || code == 'SVS') && (m.message.indexOf('cancels') > -1 || m.message.indexOf('continues'))) { return; }
-
+	var _processSpeechMessage = function(m, code) {
 		// Parse abbreviations
 		if (code == 'LSR') {
 			var parsedText = product[1] + $('<div/>').html(m.message).find('a').text();
@@ -142,9 +180,28 @@ dusty.module.iem = (function() {
 		if (code == 'TOR') {
 			dusty.speakerQueue.push( { 'text': 'The national weather service has issued a tornado warning. ' + parsedText, 'alert': true });
 		}
+	}
 
-		var tsHtml =
-			'<span class="timestamp"><span class="ts-ends">[</span>' +
+	var _formatMessage = function(m) {
+		if (m == null || m.product_id == null || !m.product_id.length) { return; }
+
+		var code = '';
+		var product = m.product_id.split('-');
+		if (product[3] !== null && product[3].length >= 3) {
+			code = product[3].substring(0, 3);
+		}
+		if (product[1] === 'KWNS') {
+			code += '|SPC';
+		}
+		
+		// Blacklist filter
+		if (_config.productBlacklist.indexOf(code) > -1) { return; }
+
+		//if (_isFilteredLsr(m.message)) { return; }
+		//if ((code == 'AFD','NOW','LSR') && !_isAllowedWfo(product[1])) { return; }
+		//if ((code == 'WCN','SVS') && (m.message.indexOf('cancels') > -1 || m.message.indexOf('continues'))) { return; }
+
+		var tsHtml = '<span class="timestamp"><span class="ts-ends">[</span>' +
 			moment(m.ts).format('HH:mm') + 'Z<span class="ts-ends">] </span></span>';
 
 		var fm = {
@@ -156,6 +213,10 @@ dusty.module.iem = (function() {
 			local: (dusty.cwa && $(m.message).text().slice(0, 3) === dusty.cwa)
 		}
 
+		if (dusty.config.speech) {
+			_processSpeechMessage(m, code);
+		}
+
 		return fm;
 	};
 
@@ -163,6 +224,7 @@ dusty.module.iem = (function() {
 	_init();
 
 	return {
+		config: _config,
 		init: function() {
 			_init();
 		},
@@ -172,6 +234,9 @@ dusty.module.iem = (function() {
 				dusty.modules.splice(index, 1);
 			}
 		},
-		update: function() { update(); }
+		update: function() { update(); },
+		options: function() {
+			_displayOptions();
+		}
 	};
 }());

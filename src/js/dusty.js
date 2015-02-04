@@ -1,5 +1,6 @@
 // TODO ditch jquery as much as possible
 // TODO not showing mod on first load - add to global timer
+// TODO network status isn't working correctly
 
 // Checking for compabitility
 // TODO what is this file api stuff?
@@ -16,6 +17,7 @@ dusty.currentModuleIndex = 0;
 dusty.netrequests = [];		// 0: slow, 1: normal, -1: failure
 dusty.netstatus = 1;		// 0: poor, 1: ok, -1: bad
 dusty.lastCwaIndex = 0;
+dusty.menu = document.getElementById('menu');
 
 var _lastCwaIndex = 0;
 
@@ -98,6 +100,8 @@ $(document).ready(function() {
 	// Key bindings
 	KeyboardJS.on('h', function() { alert('TODO help screen'); });
 	KeyboardJS.on('m', function() { switchModules(); });
+	// TODO ugh need a way to access current module easily
+	KeyboardJS.on('o', function() { dusty.module[dusty.modules[dusty.currentModuleIndex]].options(); });
 });
 
 dusty.notify = function(module) {

@@ -41,7 +41,51 @@ html, body {
 }
 
 .clock-ends, .cwa-ends, .location-ends, .net-ends, .mod-ends, .new-ends {
-	color: #009999;
+	color: #009898;
+}
+
+#menu {
+	display: none;
+	position: fixed;
+	top: 15%;
+	left: 50%;
+	background: #000;
+	z-index: 1;
+	width: 400px;
+	margin-left: -200px;
+	border: 1px #999 solid;
+	color: #D3D3D3;
+	font-size: 1.4em;
+	min-height: 200px;
+	padding: 5px;
+}
+
+.ubtn {
+	background: #009898;
+	display: none;
+	cursor: pointer;
+	height: 40px;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    margin: 5px;
+    flex-grow: 1;
+    min-width: 100px;
+}
+
+#uback, #uclose {
+	background: #999;
+	color: #000;
+}
+
+#ubox {
+	display: flex;
+	flex-wrap: wrap;
+	margin-top: 20px;
+}
+
+#utitle {
+	text-align: center;
 }
 
 #iem ol {
