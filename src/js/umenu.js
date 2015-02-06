@@ -1,15 +1,16 @@
-function umenu(base, config, callback) {
-	// If no config or callback is passed, remove any current menus
-	if (!config && !callback) {
+// TODO passback parentid instead of requiring type?
+function umenu(base, menu, callback, options) {
+	// If no menu or callback is passed, remove any current menus
+	if (!menu && !callback) {
 		try {
 			base.removeChild(document.getElementById('uback'));
 			base.removeChild(document.getElementById('ubox'));
 			base.removeChild(document.getElementById('uclose'));
 			base.removeChild(document.getElementById('utitle'));
+			// TODO iterate through nodelist
 		}
 		catch(e) {}
 		base.style.display = 'none';
-
 		return;
 	}
 
@@ -21,15 +22,14 @@ function umenu(base, config, callback) {
 	}
 	
 	function createItem(item, parentId) {
-		// Create a div for every item in the config and  set a reference to the parent
 		var el = document.createElement('div');
 		el.id = item.id;
-		el.className = 'ubtn';
-		el.innerText = item.id;
+		el.className = (item.selected) ? 'ubtn usel' : 'ubtn';
+		el.innerText = item.label || item.id;
 		el.p = parentId;
 		el.i = item;
 		box.appendChild(el);
-		// If this has children, use recursion to call this function for all descendents
+		// Use recursion to call this function for all children
 		if (item.children) {
 			item.children.forEach(function(x) { createItem(x, item.id); });
 		}
@@ -61,7 +61,9 @@ function umenu(base, config, callback) {
 	base.appendChild(box);
 
 	// Start the recursive function with the items at the top of the hierarchy
-	createItem(config.menu[0]);
+	for (var prop in menu) {
+		createItem(menu[prop]);
+	}
 	
 	var menuButtons = Array.prototype.slice.call(document.querySelectorAll('#ubox div'));
 	var crumbs = [];
@@ -76,6 +78,17 @@ function umenu(base, config, callback) {
 				refreshButtons(this.id);
 			}
 			else {
+				if (this.i.multi) {
+					if (this.className.indexOf('usel') > -1) {
+						this.className = 'ubtn';
+						this.i.info.removed = true;
+					} else {
+						this.className = 'ubtn usel';
+						this.i.info.removed = false;
+					}
+				} else {
+					umenu(base);
+				}
 				callback(this.i.info);
 			}
 		};

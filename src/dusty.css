@@ -61,7 +61,7 @@ html, body {
 }
 
 .ubtn {
-	background: #009898;
+	background: #292929;
 	display: none;
 	cursor: pointer;
 	height: 40px;
@@ -71,6 +71,10 @@ html, body {
     margin: 5px;
     flex-grow: 1;
     min-width: 100px;
+}
+
+.usel {
+	background: #009898
 }
 
 #uback, #uclose {
@@ -96,12 +100,12 @@ html, body {
 	padding: 5px;
 }
 
-#iem li.local {
+#iem li.local, #iem li.important {
 	color: #FFF;
 }
 
 #iem li.old {
-	opacity: .7;
+	opacity: .6;
 }
 
 #iem a {

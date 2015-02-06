@@ -1,9 +1,13 @@
 // TODO ditch jquery as much as possible
 // TODO not showing mod on first load - add to global timer
 // TODO network status isn't working correctly
+// Deal with mimetypes
+// TODO bundle with python or node?
+// TODO add title alerts
+// Deal with max/min scaling of images
 
 // Checking for compabitility
-// TODO what is this file api stuff?
+// TODO what is this file api stuff for?
 if (!window.File || !window.FileReader || !window.FileList || !window.Blob || !supportsLocalStorage) {
 	console.log('Dusty will not run in this browser, please see supported browsers in the documentation');
 }

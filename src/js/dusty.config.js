@@ -1,9 +1,11 @@
 dusty.config =
 	{
 		"cwacheck" : true,
-		"speech": false,
+		"speech": true,
 		"modules":
 			[
-				"dusty.module.iem"
+				"dusty.module.iem",
+				"dusty.module.codsat",
+				"dusty.module.spcmeso"
 			]
 	};

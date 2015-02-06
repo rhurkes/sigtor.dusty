@@ -60,3 +60,13 @@ function supportsLocalStorage() {
         return false;
     }
 }
+
+/* localStorage helpers */
+storage = {
+    load: function (key){
+        return (localStorage[key] !== undefined && localStorage[key].length) ? JSON.parse(localStorage[key]) : {}; 
+    },
+    save: function(key, obj) {
+        localStorage[key] = JSON.stringify(obj);
+    }
+};
