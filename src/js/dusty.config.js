@@ -4,8 +4,6 @@ dusty.config =
 		"speech": true,
 		"modules":
 			[
-				"dusty.module.iem",
-				"dusty.module.codsat",
-				"dusty.module.spcmeso"
+				"dusty.module.codsat"
 			]
 	};

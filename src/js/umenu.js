@@ -1,28 +1,34 @@
 // TODO passback parentid instead of requiring type?
+// TODO maintain crumbs for title?
+// TODO is large menu like SPC too much, do we need to render one menu at a time on demand?
 function umenu(base, menu, callback, options) {
+	var d = 'flex';
+	var n = 'none';
+	function cd() {
+		return document.createElement('div');
+	}
+
 	// If no menu or callback is passed, remove any current menus
 	if (!menu && !callback) {
 		try {
-			base.removeChild(document.getElementById('uback'));
-			base.removeChild(document.getElementById('ubox'));
-			base.removeChild(document.getElementById('uclose'));
-			base.removeChild(document.getElementById('utitle'));
-			// TODO iterate through nodelist
+			while (base.firstChild) {
+    			base.removeChild(base.firstChild);
+			}
 		}
 		catch(e) {}
-		base.style.display = 'none';
+		base.style.display = n;
 		return;
 	}
 
 	function refreshButtons(criteria) {
-		back.style.display = (!criteria) ? 'none' : 'flex';
+		back.style.display = (!criteria) ? n : d;
 		menuButtons.forEach(function(x) {
-			x.style.display = (x.p === criteria) ? 'flex' : 'none';
+			x.style.display = (x.p === criteria) ? d : n;
 		});
 	}
 	
 	function createItem(item, parentId) {
-		var el = document.createElement('div');
+		var el = cd();
 		el.id = item.id;
 		el.className = (item.selected) ? 'ubtn usel' : 'ubtn';
 		el.innerText = item.label || item.id;
@@ -36,7 +42,7 @@ function umenu(base, menu, callback, options) {
 	}
 	
 	base.style.display = 'block';
-	var back = document.createElement('div');
+	var back = cd();
 	back.id = 'uback';
 	back.className = 'ubtn';
 	back.innerText = '<- Back';
@@ -45,15 +51,15 @@ function umenu(base, menu, callback, options) {
 		title.innerText = '';
 		refreshButtons(crumbs.pop());
 	};
-	var box = document.createElement('div');
+	var box = cd();
 	box.id = 'ubox';
-	var close = document.createElement('div');
+	var close = cd();
 	close.id = 'uclose';
 	close.className = 'ubtn';
 	close.innerText = 'X Close';
-	close.style.display = 'flex';
+	close.style.display = d;
 	close.onclick = function() { umenu(base); }
-	var title = document.createElement('div');
+	var title = cd();
 	title.id = 'utitle';
 	base.appendChild(title);
 	base.appendChild(back);
@@ -70,10 +76,10 @@ function umenu(base, menu, callback, options) {
 	
 	// After all the buttons have been created, show the top level of buttons (they won't have parents), and add click event
 	menuButtons.forEach(function(x) {
-		if (!x.p) { x.style.display = 'flex'; }
+		if (!x.p) { x.style.display = d; }
 		x.onclick = function() {
 			if (this.i.children) {
-				title.innerText = '-' + this.id + '-';
+				title.innerText = this.i.label || this.id;
 				crumbs.push(this.p);
 				refreshButtons(this.id);
 			}
@@ -81,15 +87,15 @@ function umenu(base, menu, callback, options) {
 				if (this.i.multi) {
 					if (this.className.indexOf('usel') > -1) {
 						this.className = 'ubtn';
-						this.i.info.removed = true;
+						this.i.data.removed = true;
 					} else {
 						this.className = 'ubtn usel';
-						this.i.info.removed = false;
+						this.i.data.removed = false;
 					}
 				} else {
 					umenu(base);
 				}
-				callback(this.i.info);
+				callback(this.i);
 			}
 		};
 	});

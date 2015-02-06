@@ -117,6 +117,7 @@ dusty.notify = function(module) {
 }
 
 var switchModules = function() {
+	umenu(dusty.menu);	// Close out any open menus
 	$('.module').hide();
 	var index = (dusty.currentModuleIndex < dusty.modules.length - 1) ? dusty.currentModuleIndex + 1 : 0;
 	dusty.currentModuleIndex = index;

@@ -159,7 +159,7 @@ dusty.module.iem = (function() {
 		React.render(React.createElement(Iem, null), document.getElementById(_name));
 	};
 
-	var Iem = React.createClass({displayName: "Iem",
+	var Iem = React.createClass({displayName: 'Iem',
 		getInitialState: function() {
 			var self = this;
 			self.fetchIemData();
@@ -231,7 +231,7 @@ dusty.module.iem = (function() {
 		}
 	});
 
-	var IemMessage = React.createClass({displayName: "IemMessage",
+	var IemMessage = React.createClass({displayName: 'IemMessage',
 		handleClick: function() {
 			if (this.props.message.url) {
 				window.open(this.props.message.url);

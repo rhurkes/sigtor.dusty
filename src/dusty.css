@@ -141,6 +141,14 @@ html, body {
 	display: none;
 }
 
+#codsat-box {
+	position: relative;
+}
+
+#codsat-box img {
+	position: absolute;
+}
+
 /* SPC Mesoanalysis */
 #spcmeso-box {
 	background: #FFF;
@@ -154,4 +162,17 @@ html, body {
 	left: 0;
 	width: 1000px;
 	height: 750px;
+}
+
+#spcmeso-params {
+	position: absolute;
+	bottom: 30px;
+	left: 6px;
+	background: #000;
+	color: #FFF;
+	font-size: 1.4em;
+}
+
+#status #new {
+	display: none;
 }
