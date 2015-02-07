@@ -24,6 +24,7 @@ dusty.module.codsat = (function() {
 			_img.res = resp.data.area;
 			_img.area = resp.data.name;
 		}
+		_removeImages();
 		_fetchImage();
 	};
 
@@ -90,6 +91,12 @@ dusty.module.codsat = (function() {
 		document.body.appendChild(div);
 		_context = canvas.getContext('2d');
 		_fetchImage();
+	};
+
+	var _removeImages = function() {
+		while (imgdiv.firstChild) {
+			imgdiv.removeChild(imgdiv.firstChild);
+		}
 	};
 
 	var _fetchImage = function() {

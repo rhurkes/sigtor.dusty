@@ -50,7 +50,7 @@ html, body {
 	top: 15%;
 	left: 50%;
 	background: #000;
-	z-index: 1;
+	z-index: 100;
 	width: 400px;
 	margin-left: -200px;
 	border: 1px #999 solid;
@@ -164,13 +164,23 @@ html, body {
 	height: 750px;
 }
 
-#spcmeso-params {
+#spcmeso-position {
+	background: red;
 	position: absolute;
-	bottom: 30px;
-	left: 6px;
-	background: #000;
+	display: none;
+	width: 8px;
+	height: 8px;
+	z-index: 10;
+	border-radius: 4px;
+}
+
+#spcmeso-params {
+	position: fixed;
+	bottom: 25px;
+	background: #292929;
 	color: #FFF;
-	font-size: 1.4em;
+	padding: 5px;
+	z-index: 100;
 }
 
 #status #new {

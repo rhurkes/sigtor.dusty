@@ -2,9 +2,12 @@
 // TODO not showing mod on first load - add to global timer
 // TODO network status isn't working correctly
 // Deal with mimetypes
-// TODO bundle with python or node?
+// TODO bundle with python or node? probably c# for gps support
 // TODO add title alerts
 // Deal with max/min scaling of images
+// TODO MODULES: cimss, 
+// GOES sounder: http://www.star.nesdis.noaa.gov/smcd/opdb/goes/soundings/index.php
+// GOES zoomin: http://weather.msfc.nasa.gov/GOES/
 
 // Checking for compabitility
 // TODO what is this file api stuff for?
