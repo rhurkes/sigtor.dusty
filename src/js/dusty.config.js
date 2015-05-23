@@ -4,7 +4,9 @@ dusty.config =
 		"speech": false,
 		"modules":
 			[
+				"dusty.module.iem",
 				"dusty.module.codsat",
-				"dusty.module.spcmeso"
+				"dusty.module.spcmeso",
+				"dusty.module.bookmark"
 			]
 	};

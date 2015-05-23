@@ -1,7 +1,9 @@
 // TODO passback parentid instead of requiring type?
 // TODO maintain crumbs for title?
 // TODO is large menu like SPC too much, do we need to render one menu at a time on demand?
+// TODO why does it need an object at the root, instead of an array?
 function umenu(base, menu, callback, options) {
+	options = options || {};
 	var d = 'flex';
 	var n = 'none';
 	function cd() {
@@ -93,7 +95,9 @@ function umenu(base, menu, callback, options) {
 						this.i.data.removed = false;
 					}
 				} else {
-					umenu(base);
+					if (!options.alwaysOpen) {
+						umenu(base);
+					}
 				}
 				callback(this.i);
 			}

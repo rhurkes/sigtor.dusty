@@ -2,6 +2,8 @@
 // TODO gps location resize
 // TODO resize
 // TODO organize this better
+// TODO refresh config - off, 1m, 5m
+// TODO why no recalculate gps when switch sector from Natnl to S Plains?
 
 dusty.module = dusty.module || {};
 dusty.module.spcmeso = (function() {
@@ -28,12 +30,16 @@ dusty.module.spcmeso = (function() {
 				break;
 			case 'togglehiways':
 				_hiwaysPresent = !_hiwaysPresent;
-				imghiways.src = _baseUrl.replace('{{sector}}', _state.sector).replace('{{parama}}', 'hiway').replace('{{paramb}}', 'hiway');
+				if (_hiwaysPresent) {
+					imghiways.src = _baseUrl.replace('{{sector}}', _state.sector).replace('{{parama}}', 'hiway').replace('{{paramb}}', 'hiway');
+				}
 				imghiways.style.display = (_hiwaysPresent) ? 'block' : 'none';
 				break;
 			case 'toggleradar':
 				_radarPresent = !_radarPresent;
-				imgradar.src = _baseUrl.replace('{{parama}}', 'rgnlrad').replace('{{paramb}}', 'rgnlrad').replace('{{sector}}', _state.sector) + (new Date().getTime());
+				if (_radarPresent) {
+					imgradar.src = _baseUrl.replace('{{parama}}', 'rgnlrad').replace('{{paramb}}', 'rgnlrad').replace('{{sector}}', _state.sector) + (new Date().getTime());
+				}
 				imgradar.style.display = (_radarPresent) ? 'block' : 'none';
 				break;
 			case 'presets':
@@ -434,29 +440,25 @@ dusty.module.spcmeso = (function() {
 	};
 
 	var _loadImages = function() {
+		// TODO refactor/clean this
+		// TODO don't update unless data is older than refresh time, or its a different sector or param
 		_setGpsLocation();
 		var now = new Date().getTime();
-		var bgurl = _baseUrl.replace('{{sector}}', _state.sector).replace('{{parama}}', 'cnty').replace('{{paramb}}', 'cnty');
-		if (imgbg.src.indexOf(bgurl) === -1) {
-			imgbg.src = bgurl;
-		}
+		img.src = _baseUrl.replace('{{sector}}', _state.sector).replace('{{parama}}', 'cnty').replace('{{paramb}}', 'cnty');
 
 		if (_hiwaysPresent) {
-			if (imghiways.src.indexOf('s' + _state.sector) === -1) {
-				imghiways.src = _baseUrl.replace('{{sector}}', _state.sector).replace('{{parama}}', 'hiway').replace('{{paramb}}', 'hiway');
-			}
+			imghiways.src = _baseUrl.replace('{{sector}}', _state.sector).replace('{{parama}}', 'hiway').replace('{{paramb}}', 'hiway');
 		}
 
 		if (_state.param1) {
 			var param1a = _state.param1.replace('_sf', '');
 			params.innerText = 'Parameters: ' + _state.p1label;
 			var url = _baseUrl.replace('{{sector}}', _state.sector).replace('{{parama}}', param1a).replace('{{paramb}}', _state.param1);
-			if (img.src.indexOf(url) === -1) {
-				img.src = url + now;
-			}
+			img.src = url + now;
+			img.last = now;
 		}
 
-		if (_state.param2) {
+		if (_state.param2 && _state.param2 !== 'none') {
 			if (_state.param1) {
 				params.innerText += ', ' + _state.p2label;
 			} else {
@@ -465,9 +467,8 @@ dusty.module.spcmeso = (function() {
 			var param2a = _state.param2.replace('_sf', '');
 			img2.style.display = (_state.param2 === 'none') ? 'none' : 'block';
 			url = _baseUrl.replace('{{sector}}', _state.sector).replace('{{parama}}', param2a).replace('{{paramb}}', _state.param2);
-			if (img2.src.indexOf(url) === -1) {
-				img2.src = url + now;
-			}
+			img2.src = url + now;
+			img2.last = now;
 		}
 
 		if (_state.isPreset) {
@@ -481,6 +482,8 @@ dusty.module.spcmeso = (function() {
 		var xy = lalo_xy(dusty.location.lat, dusty.location.lon);
 		var xsys = xy_pix(xy[0], xy[1]);
 		xsys = scalePosition(1000, xsys);
+		// Don't display if outside the bounds of the image
+		if (xsys[1] > 750 || xsys[1] < 0 || xsys[0] > 1000 || xsys[0] < 0) { return; }
 		var radius = 4;
 		position.style.top = xsys[1] - radius + 'px';
 		position.style.left = xsys[0] - radius + 'px';
